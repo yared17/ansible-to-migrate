@@ -31,5 +31,26 @@ localhost
 bienesible
 Aquí el servidor web sería configurado en el host local y el dbserver en un servidor llamado "bensible". La pila se puede implementar mediante el siguiente comando:
 
-ansible-playbook -i hosts site.yml
+ansible-playbook -i hosts all.yml  o ansible-playbook -i ./hosts all.yml
 Una vez hecho esto, puede comprobar los resultados consultando http://localhost/index.php. Debería ver una página de prueba simple y una lista de bases de datos recuperadas del servidor de bases de datos.
+
+#Iniciando con Ansible
+
+Preliminares
+
+Para realizar las prácticas debes tener instalado en el equipo o servidor de pruebas:
+
+Docker
+Python
+Instalación de Ansible desde afuera de la carpeta de tu proyecto solo este comando
+
+    pip install ansible
+Construcción de la imagen personalizada
+
+Ingresa a la carpeta 'ansible000' y sigue los pasos indicados.
+
+Reiniciar todo
+
+En caso de reiniciar el experiemento ejecute:
+
+./clean_all.sh
