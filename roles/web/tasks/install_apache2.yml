@@ -55,7 +55,3 @@
       command: a2ensite default-ssl
       notify:
         - restart apache2
-
-  handlers:
-    - name: restart apache2
-      service: name=apache2 state=restarted
