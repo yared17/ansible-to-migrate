@@ -2,7 +2,7 @@ Creación de una pila LAMP sencilla e implementación de la aplicación mediante
 -------------------------------------------
 Estos cuadernos requieren Ansible 1.2.
 
-Estos libros de ejercicios están destinados a ser una guía de referencia y de inicio para la creación de libros de ejercicios Ansible. Estos manuales se probaron en CentOS 6.x por lo que recomendamos que utilice CentOS o RHEL para probar estos módulos.
+Estos libros de ejercicios están destinados a ser una guía de referencia y de inicio para la creación de libros de ejercicios Ansible. 
 
 Esta pila LAMP puede estar en un solo nodo o en varios nodos. El archivo de inventario 'hosts' define los nodos en los que se deben configurar las pilas.
 
