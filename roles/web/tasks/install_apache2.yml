@@ -1,0 +1,61 @@
+---
+- hosts: all
+  become: true
+  
+  tasks:
+    - name: Install Apache2
+      apt: name=apache2 update_cache=yes state=latest
+
+    - name: Install OpenSSL
+      apt: name=openssl update_cache=yes state=latest
+
+    - name: Remove default site
+      command: a2dissite 000-default
+      notify:
+        - restart apache2
+
+    - name: Close port 80
+      lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen 80" state=absent
+      notify:
+        - restart apache2
+
+    - name: Set global host name
+      lineinfile: dest=/etc/apache2/apache2.conf line="ServerName example.com"
+      notify:
+        - restart apache2
+        
+    - name: Create self-signed certificate
+      command: openssl req -x509 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -days 365 -nodes -subj "/C=FI/ST=Helsinki/L=Helsinki/O=Snake Oil/OU=Snake Oil/CN=example.com"
+
+    - name: Create DH parameters
+      command: openssl dhparam -out /etc/ssl/private/dhparams.pem 2048
+      
+    - name: Enable Apache TLS
+      command: a2enmod ssl
+      notify:
+        - restart apache2
+
+    - name: Configure TLS parameters
+      blockinfile:
+        dest: /etc/apache2/sites-available/default-ssl.conf
+        insertafter: "SSLEngine on"
+        content: |
+          SSLProtocol -all +TLSv1.2
+          SSLHonorCipherOrder On
+          SSLCompression Off
+          SSLInsecureRenegotiation off
+          SSLCipherSuite ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA
+          SSLOpenSSLConfCmd ECDHParameters Automatic
+          SSLOpenSSLConfCmd Curves brainpoolP512r1:brainpoolP384r1:brainpoolP256r1:secp521r1:secp384r1:prime256v1
+          SSLOpenSSLConfCmd DHParameters "/etc/ssl/private/dhparams.pem"
+      notify:
+        - restart apache2
+
+    - name: Enable TLS site
+      command: a2ensite default-ssl
+      notify:
+        - restart apache2
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
